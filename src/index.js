@@ -3,17 +3,19 @@ import ReactDOM from "react-dom/client";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
-import Root from "./routes/root";
-import DetailPage from "./routes/detail";
+import Root, { loader as rootLoader } from "./routes/root";
+import DetailPage, { loader as detailLoader } from "./routes/detail";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Root />,
+    loader: rootLoader,
   },
   {
-    path: "detail",
+    path: "detail/:listId",
     element: <DetailPage />,
+    loader: detailLoader,
   },
 ]);
 

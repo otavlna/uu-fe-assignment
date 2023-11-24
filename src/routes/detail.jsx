@@ -1,53 +1,33 @@
 import { useState } from "react";
+import { useLoaderData, useRevalidator } from "react-router-dom";
 import Item from "../components/item";
 import User from "../components/user";
+import { listsMock, meMock } from "../data";
 
-const listMock = {
-  name: "Muj nakupni seznam",
-  users: [
-    { id: 1, role: "owner", username: "otavlna" },
-    { id: 2, role: "user", username: "uzivatel1" },
-    { id: 3, role: "user", username: "uzivatel2" },
-  ],
-  items: [
-    {
-      id: 1,
-      description: "Udelat FE ukol",
-      createdAt: new Date(),
-      solvedAt: new Date(),
-    },
-    {
-      id: 2,
-      description: "Fixnout auto",
-      createdAt: new Date(),
-      solvedAt: null,
-    },
-    {
-      id: 3,
-      description: "Odstraneny ukol",
-      createdAt: new Date(),
-      solvedAt: null,
-    },
-  ],
-};
-
-const meMock = {
-  id: 1,
-  role: "owner",
-  username: "otavlna",
-};
+export async function loader({ params }) {
+  const list = listsMock.find((list) => list.id === parseInt(params.listId));
+  const me = meMock;
+  return { list, me };
+}
 
 export default function DetailPage() {
-  const [list, setList] = useState(listMock);
-  const [me, setMe] = useState(meMock);
+  const { list, me } = useLoaderData();
+  const revalidator = useRevalidator();
+  const isOwner =
+    list.users.find((user) => user.id === me.id)?.role === "owner";
 
   const [newItem, setNewItem] = useState("");
   const [isEditingName, setIsEditingName] = useState(false);
   const [filter, setFilter] = useState("all");
   const [newUsername, setNewUsername] = useState("");
 
+  const setList = (list) => {
+    listsMock[listsMock.findIndex((l) => l.id === list.id)] = list;
+    revalidator.revalidate();
+  };
+
   return (
-    <main style={{ width: "600px", margin: "auto" }}>
+    <main style={{ maxWidth: "600px", margin: "auto" }}>
       <div style={{ display: "flex", flexDirection: "row" }}>
         <h1>{list.name}</h1>
         {me.role === "owner" ? (
@@ -101,7 +81,7 @@ export default function DetailPage() {
             <Item
               key={item.id}
               item={item}
-              isOwner={me.role === "owner"}
+              isOwner={isOwner}
               handleSolve={() =>
                 setList({
                   ...list,
@@ -137,7 +117,7 @@ export default function DetailPage() {
             ...list,
             items: list.items
               .concat({
-                id: list.items[list.items.length - 1].id + 1,
+                id: (list.items[list.items.length - 1]?.id ?? 0) + 1,
                 description: newItem,
                 createdAt: new Date(),
                 solvedAt: null,
@@ -155,7 +135,7 @@ export default function DetailPage() {
           <li key={user.id}>
             <User
               user={user}
-              isOwner={me.role === "owner"}
+              canDelete={isOwner || user.id === me.id}
               handleDelete={() =>
                 setList({
                   ...list,
@@ -182,7 +162,7 @@ export default function DetailPage() {
                 ...list,
                 users: list.users
                   .concat({
-                    id: list.users[list.users.length - 1].id + 1,
+                    id: (list.users[list.users.length - 1]?.id ?? 0) + 1,
                     username: newUsername,
                     role: "user",
                   })
