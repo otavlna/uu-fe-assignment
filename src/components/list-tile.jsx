@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { listsMock } from "../data";
 import Modal from "./modal";
+import { API_URL } from "../routes/root";
 
 export default function ListTile({
   revalidator,
@@ -13,9 +13,12 @@ export default function ListTile({
   isArchived,
 }) {
   const [deleteShow, setDeleteShow] = useState(false);
-  const [archiveShow, setArchiveShow] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
-  console.log(me, name, items, id, users);
+  const [archiveShow, setArchiveShow] = useState(false);
+  const [archiveLoading, setArchiveLoading] = useState(false);
+  const [archiveError, setArchiveError] = useState("");
 
   const clearAllModals = () => {
     setDeleteShow(false);
@@ -86,12 +89,21 @@ export default function ListTile({
       <Modal show={deleteShow} setShow={setDeleteShow}>
         <p style={{ fontSize: "20px" }}>Delete list {name}?</p>
         <form
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
-            const i = listsMock.findIndex((list) => list.id === id);
-            listsMock.splice(i, 1);
-            revalidator.revalidate();
-            setDeleteShow(false);
+            setDeleteLoading(true);
+            const res = await fetch(`${API_URL}/lists/${id}`, {
+              method: "DELETE",
+            });
+            if (res.status.toString()[0] === "2") {
+              revalidator.revalidate();
+              setDeleteShow(false);
+              setDeleteLoading(false);
+              setDeleteError("");
+            } else {
+              setDeleteError("Failed to delete list, please try again");
+              setDeleteLoading(false);
+            }
           }}
         >
           <div style={{ display: "flex", marginTop: "15px" }}>
@@ -99,27 +111,41 @@ export default function ListTile({
               type="button"
               onClick={() => {
                 setDeleteShow(false);
+                setDeleteError("");
               }}
+              disabled={deleteLoading}
             >
               Cancel
             </button>
-            <button type="submit" style={{ marginLeft: "5px" }}>
+            <button
+              type="submit"
+              style={{ marginLeft: "5px" }}
+              disabled={deleteLoading}
+            >
               Delete
             </button>
           </div>
         </form>
+        <p>{deleteError}</p>
       </Modal>
       <Modal show={archiveShow} setShow={setArchiveShow}>
         <p style={{ fontSize: "20px" }}>Archive list {name}?</p>
         <form
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
-            listsMock[listsMock.findIndex((l) => l.id === id)] = {
-              ...listsMock[listsMock.findIndex((l) => l.id === id)],
-              isArchived: true,
-            };
-            revalidator.revalidate();
-            setArchiveShow(false);
+            setArchiveLoading(true);
+            const res = await fetch(`${API_URL}/lists/${id}/archive`, {
+              method: "POST",
+            });
+            if (res.status.toString()[0] === "2") {
+              revalidator.revalidate();
+              setArchiveShow(false);
+              setArchiveLoading(false);
+              setArchiveError("");
+            } else {
+              setArchiveError("Failed to archive list, please try again");
+              setArchiveLoading(false);
+            }
           }}
         >
           <div style={{ display: "flex", marginTop: "15px" }}>
@@ -127,15 +153,22 @@ export default function ListTile({
               type="button"
               onClick={() => {
                 setArchiveShow(false);
+                setArchiveError("");
               }}
+              disabled={archiveLoading}
             >
               Cancel
             </button>
-            <button type="submit" style={{ marginLeft: "5px" }}>
+            <button
+              type="submit"
+              style={{ marginLeft: "5px" }}
+              disabled={archiveLoading}
+            >
               Archive
             </button>
           </div>
         </form>
+        <p>{archiveError}</p>
       </Modal>
     </>
   );

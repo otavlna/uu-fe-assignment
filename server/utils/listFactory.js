@@ -1,6 +1,6 @@
-import { listsMock } from "../data";
+const { listsMock } = require("../mocks");
 
-export function listFactory(name, owner, ownerId) {
+module.exports.listFactory = function (name, owner, ownerId) {
   return {
     id: listsMock[listsMock.length - 1].id + 1,
     name,
@@ -8,4 +8,4 @@ export function listFactory(name, owner, ownerId) {
     users: [{ id: ownerId, role: "owner", username: owner }],
     items: [],
   };
-}
+};

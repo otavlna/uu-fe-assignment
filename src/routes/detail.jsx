@@ -2,12 +2,14 @@ import { useState } from "react";
 import { useLoaderData, useRevalidator } from "react-router-dom";
 import Item from "../components/item";
 import User from "../components/user";
-import { listsMock, meMock } from "../data";
+import { API_URL } from "./root";
 
 export async function loader({ params }) {
-  const list = listsMock.find((list) => list.id === parseInt(params.listId));
-  const me = meMock;
-  return { list, me };
+  const [list, me] = await Promise.all([
+    fetch(`${API_URL}/lists/${params.listId}`),
+    fetch(`${API_URL}/me`),
+  ]);
+  return { list: await list.json(), me: await me.json() };
 }
 
 export default function DetailPage() {
@@ -21,16 +23,33 @@ export default function DetailPage() {
   const [filter, setFilter] = useState("all");
   const [newUsername, setNewUsername] = useState("");
 
-  const setList = (list) => {
-    listsMock[listsMock.findIndex((l) => l.id === list.id)] = list;
-    revalidator.revalidate();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const setList = async (list) => {
+    setLoading(true);
+    const res = await fetch(`${API_URL}/lists/${list.id}`, {
+      method: "PATCH",
+      body: JSON.stringify(list),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (res.status.toString()[0] === "2") {
+      revalidator.revalidate();
+      setLoading(false);
+      setError("");
+    } else {
+      setError("Failed to update list, please try again");
+      setLoading(false);
+    }
   };
 
   return (
     <main style={{ maxWidth: "600px", margin: "auto" }}>
       <div style={{ display: "flex", flexDirection: "row" }}>
         <h1>{list.name}</h1>
-        {me.role === "owner" ? (
+        {isOwner ? (
           <div
             style={{
               marginLeft: "10px",
@@ -38,7 +57,10 @@ export default function DetailPage() {
               alignItems: "center",
             }}
           >
-            <button onClick={() => setIsEditingName(!isEditingName)}>
+            <button
+              onClick={() => setIsEditingName(!isEditingName)}
+              disabled={loading}
+            >
               {isEditingName ? "Confirm" : "Edit"}
             </button>
           </div>
@@ -46,11 +68,12 @@ export default function DetailPage() {
           <></>
         )}
       </div>
-      {me.role === "owner" && isEditingName ? (
+      {isOwner && isEditingName ? (
         <input
           type="text"
           value={list.name}
           onChange={(event) => setList({ ...list, name: event.target.value })}
+          disabled={loading}
         />
       ) : (
         <></>
@@ -82,6 +105,7 @@ export default function DetailPage() {
               key={item.id}
               item={item}
               isOwner={isOwner}
+              loading={loading}
               handleSolve={() =>
                 setList({
                   ...list,
@@ -109,6 +133,7 @@ export default function DetailPage() {
         type="text"
         value={newItem}
         onChange={(event) => setNewItem(event.target.value)}
+        disabled={loading}
       />
       <button
         style={{ marginLeft: "10px" }}
@@ -126,6 +151,7 @@ export default function DetailPage() {
           });
           setNewItem("");
         }}
+        disabled={loading}
       >
         Add item
       </button>
@@ -136,6 +162,7 @@ export default function DetailPage() {
             <User
               user={user}
               canDelete={isOwner || user.id === me.id}
+              loading={loading}
               handleDelete={() =>
                 setList({
                   ...list,
@@ -148,12 +175,13 @@ export default function DetailPage() {
           </li>
         ))}
       </ul>
-      {me.role === "owner" ? (
+      {isOwner ? (
         <>
           <input
             type="text"
             value={newUsername}
             onChange={(event) => setNewUsername(event.target.value)}
+            disabled={loading}
           />
           <button
             style={{ marginLeft: "10px" }}
@@ -170,6 +198,7 @@ export default function DetailPage() {
               });
               setNewUsername("");
             }}
+            disabled={loading}
           >
             Add user
           </button>
@@ -177,6 +206,7 @@ export default function DetailPage() {
       ) : (
         <></>
       )}
+      <p>{error}</p>
     </main>
   );
 }
