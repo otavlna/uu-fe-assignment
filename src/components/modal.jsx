@@ -11,8 +11,8 @@ export default function Modal({ children, show }) {
         padding: "30px 60px",
         border: "1px solid #aaa",
         borderRadius: "5px",
-        background: "#fff",
       }}
+      className="dark:bg-slate-600 bg-white dark:text-white"
     >
       {children}
     </div>

@@ -10,7 +10,7 @@ export async function loader({ params }) {
   return { list, me };
 }
 
-export default function DetailPage() {
+export default function DetailPage({ lang }) {
   const { list, me } = useLoaderData();
   const revalidator = useRevalidator();
   const isOwner =
@@ -27,9 +27,12 @@ export default function DetailPage() {
   };
 
   return (
-    <main style={{ maxWidth: "600px", margin: "auto" }}>
+    <main
+      style={{ maxWidth: "600px", margin: "auto", padding: "20px" }}
+      className="dark:text-white"
+    >
       <div style={{ display: "flex", flexDirection: "row" }}>
-        <h1>{list.name}</h1>
+        <h1 className="text-xl">{list.name}</h1>
         {me.role === "owner" ? (
           <div
             style={{
@@ -38,7 +41,10 @@ export default function DetailPage() {
               alignItems: "center",
             }}
           >
-            <button onClick={() => setIsEditingName(!isEditingName)}>
+            <button
+              onClick={() => setIsEditingName(!isEditingName)}
+              className="dark:bg-slate-400 p-1 bg-neutral-200 dark:text-black"
+            >
               {isEditingName ? "Confirm" : "Edit"}
             </button>
           </div>
@@ -51,6 +57,7 @@ export default function DetailPage() {
           type="text"
           value={list.name}
           onChange={(event) => setList({ ...list, name: event.target.value })}
+          className="dark:text-black bg-neutral-400"
         />
       ) : (
         <></>
@@ -60,10 +67,13 @@ export default function DetailPage() {
         id="filter"
         value={filter}
         onChange={(event) => setFilter(event.target.value)}
+        className="dark:bg-slate-600 dark:text-white "
       >
-        <option value="all">All</option>
-        <option value="unsolved">Unsolved</option>
-        <option value="solved">Solved</option>
+        <option value="all">{lang === "en" ? "All" : "Vsechno"}</option>
+        <option value="unsolved">
+          {lang === "en" ? "Unsolved" : "Nevyresene"}
+        </option>
+        <option value="solved">{lang === "en" ? "Solved" : "Vyresene"}</option>
       </select>
       <div>
         {list.items
@@ -82,6 +92,7 @@ export default function DetailPage() {
               key={item.id}
               item={item}
               isOwner={isOwner}
+              lang={lang}
               handleSolve={() =>
                 setList({
                   ...list,
@@ -109,8 +120,10 @@ export default function DetailPage() {
         type="text"
         value={newItem}
         onChange={(event) => setNewItem(event.target.value)}
+        className="dark:text-black bg-neutral-200"
       />
       <button
+        className="dark:bg-slate-400 p-1 bg-neutral-200 dark:text-black"
         style={{ marginLeft: "10px" }}
         onClick={() => {
           setList({
@@ -127,13 +140,14 @@ export default function DetailPage() {
           setNewItem("");
         }}
       >
-        Add item
+        {lang === "en" ? "Add Item" : "Pridat vec"}
       </button>
-      <h3>Users</h3>
+      <h3 className="text-lg">{lang === "en" ? "Users" : "Uzivatele"}</h3>
       <ul>
         {list.users.map((user) => (
           <li key={user.id}>
             <User
+              lang={lang}
               user={user}
               canDelete={isOwner || user.id === me.id}
               handleDelete={() =>
@@ -154,8 +168,10 @@ export default function DetailPage() {
             type="text"
             value={newUsername}
             onChange={(event) => setNewUsername(event.target.value)}
+            className="dark:text-black bg-neutral-400"
           />
           <button
+            className="dark:bg-slate-400 p-1 bg-neutral-200 dark:text-black"
             style={{ marginLeft: "10px" }}
             onClick={() => {
               setList({

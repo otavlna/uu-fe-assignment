@@ -11,7 +11,8 @@ export async function loader() {
   return { lists, me };
 }
 
-export default function Root() {
+export default function Root({ lang }) {
+  console.log("lang", lang);
   const { lists, me } = useLoaderData();
   const revalidator = useRevalidator();
 
@@ -21,19 +22,26 @@ export default function Root() {
   const [addInput, setAddInput] = useState("");
 
   return (
-    <main style={{ maxWidth: "1000px", margin: "auto" }}>
-      <h1>My shopping lists</h1>
-      Filter lists:
+    <main style={{ maxWidth: "1000px", margin: "auto", padding: "20px" }}>
+      <h1 className="dark:text-white">
+        {lang === "en" ? "My shopping lists" : "Moje nakupni seznamy"}
+      </h1>
+      <span className="dark:text-white">
+        {lang === "en" ? "Filter lists:" : "Filtrovat seznamy"}
+      </span>
       <select
         name="filter"
         id="filter"
         value={filter}
         onChange={(event) => setFilter(event.target.value)}
         style={{ marginLeft: "5px" }}
+        className="dark:bg-slate-600 dark:text-white "
       >
-        <option value="all">All</option>
-        <option value="archived">Archived</option>
-        <option value="active">Active</option>
+        <option value="all">{lang === "en" ? "All" : "Vsechno"}</option>
+        <option value="archived">
+          {lang === "en" ? "Archived" : "Archivovane"}
+        </option>
+        <option value="active">{lang === "en" ? "Active" : "Aktivni"}</option>
       </select>
       <div className="tiles" style={{ marginTop: "10px" }}>
         {lists
@@ -57,10 +65,11 @@ export default function Root() {
               items={list.items}
               users={list.users}
               isArchived={list.isArchived}
+              lang={lang}
             />
           ))}
         <div
-          className="tile"
+          className="tile dark:bg-slate-600"
           style={{
             display: "flex",
             flexDirection: "column",
@@ -68,11 +77,18 @@ export default function Root() {
           }}
           onClick={() => setAddShow(true)}
         >
-          <p style={{ margin: "auto", fontWeight: "bold" }}>+ Add new list</p>
+          <p
+            style={{ margin: "auto", fontWeight: "bold" }}
+            className="dark:text-white"
+          >
+            {lang === "en" ? "+ Add new list" : "+ Pridat novy seznam"}
+          </p>
         </div>
       </div>
       <Modal show={addShow} setShow={setAddShow}>
-        <p style={{ fontSize: "20px" }}>Add new list</p>
+        <p style={{ fontSize: "20px" }}>
+          {lang === "en" ? "Add new list" : "Pridat novy seznam"}
+        </p>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -87,6 +103,7 @@ export default function Root() {
             placeholder="My new list name"
             style={{ padding: "5px 5px" }}
             onChange={(e) => setAddInput(e.target.value)}
+            className="dark:text-black border-2"
           />
           <div style={{ display: "flex", marginTop: "15px" }}>
             <button
@@ -95,11 +112,16 @@ export default function Root() {
                 setAddShow(false);
                 setAddInput("");
               }}
+              className="dark:bg-slate-400 p-1 bg-neutral-200 dark:text-black"
             >
-              Cancel
+              {lang === "en" ? "Cancel" : "Zrusit"}
             </button>
-            <button type="submit" style={{ marginLeft: "5px" }}>
-              Add
+            <button
+              className="dark:bg-slate-400 p-1 bg-neutral-200 dark:text-black"
+              type="submit"
+              style={{ marginLeft: "5px" }}
+            >
+              {lang === "en" ? "Add" : "Cancel"}
             </button>
           </div>
         </form>

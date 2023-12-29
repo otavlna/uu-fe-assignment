@@ -11,6 +11,7 @@ export default function ListTile({
   id,
   users,
   isArchived,
+  lang,
 }) {
   const [deleteShow, setDeleteShow] = useState(false);
   const [archiveShow, setArchiveShow] = useState(false);
@@ -27,7 +28,7 @@ export default function ListTile({
       <Link
         to={`detail/${id}`}
         style={{ textDecoration: "none", minWidth: "0px" }}
-        className="tile"
+        className="tile dark:bg-slate-600 dark:text-white"
       >
         <div>
           <h3
@@ -35,12 +36,16 @@ export default function ListTile({
               textOverflow: "ellipsis",
               overflow: "hidden",
               whiteSpace: "nowrap",
+              fontSize: 18,
             }}
+            className="dark:text-white mt-3 mb-5"
           >
             {name}
           </h3>
           <div style={{ display: "flex" }}>
-            <p style={{ fontSize: 16 }}>{items.length} items</p>
+            <p style={{ fontSize: 16 }} className="dark:text-white">
+              {items.length} {lang === "en" ? "items" : "veci"}
+            </p>
             <div
               style={{
                 display: "flex",
@@ -55,25 +60,27 @@ export default function ListTile({
                 <div>
                   {!isArchived ? (
                     <button
+                      className="dark:bg-slate-400 p-1 mr-2 bg-neutral-200"
                       onClick={(e) => {
                         e.preventDefault();
                         clearAllModals();
                         setArchiveShow(true);
                       }}
                     >
-                      Archive
+                      {lang === "en" ? "Archive" : "Archivovat"}
                     </button>
                   ) : (
                     <></>
                   )}
                   <button
+                    className="dark:bg-slate-400 p-1 bg-neutral-200"
                     onClick={(e) => {
                       e.preventDefault();
                       clearAllModals();
                       setDeleteShow(true);
                     }}
                   >
-                    Delete
+                    {lang === "en" ? "Delete" : "Odstranit"}
                   </button>
                 </div>
               ) : (
@@ -84,7 +91,9 @@ export default function ListTile({
         </div>
       </Link>
       <Modal show={deleteShow} setShow={setDeleteShow}>
-        <p style={{ fontSize: "20px" }}>Delete list {name}?</p>
+        <p style={{ fontSize: "20px" }}>
+          {lang === "en" ? "Delete list" : "Odstranit seznam"} {name}?
+        </p>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -96,15 +105,20 @@ export default function ListTile({
         >
           <div style={{ display: "flex", marginTop: "15px" }}>
             <button
+              className="dark:bg-slate-400 p-1 bg-neutral-200 dark:text-black"
               type="button"
               onClick={() => {
                 setDeleteShow(false);
               }}
             >
-              Cancel
+              {lang === "en" ? "Cancel" : "Zrusit"}
             </button>
-            <button type="submit" style={{ marginLeft: "5px" }}>
-              Delete
+            <button
+              className="dark:bg-slate-400 p-1 bg-neutral-200 dark:text-black"
+              type="submit"
+              style={{ marginLeft: "5px" }}
+            >
+              {lang === "en" ? "Delete" : "Odstranit"}
             </button>
           </div>
         </form>
@@ -124,15 +138,20 @@ export default function ListTile({
         >
           <div style={{ display: "flex", marginTop: "15px" }}>
             <button
+              className="dark:bg-slate-400 p-1 bg-neutral-200 dark:text-black"
               type="button"
               onClick={() => {
                 setArchiveShow(false);
               }}
             >
-              Cancel
+              {lang === "en" ? "Cancel" : "Zrusit"}
             </button>
-            <button type="submit" style={{ marginLeft: "5px" }}>
-              Archive
+            <button
+              className="dark:bg-slate-400 p-1 bg-neutral-200 dark:text-black"
+              type="submit"
+              style={{ marginLeft: "5px" }}
+            >
+              {lang === "en" ? "Archive" : "Archivovat"}
             </button>
           </div>
         </form>
