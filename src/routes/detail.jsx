@@ -3,6 +3,7 @@ import { useLoaderData, useRevalidator } from "react-router-dom";
 import Item from "../components/item";
 import User from "../components/user";
 import { listsMock, meMock } from "../data";
+import { Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
 export async function loader({ params }) {
   const list = listsMock.find((list) => list.id === parseInt(params.listId));
@@ -193,6 +194,35 @@ export default function DetailPage({ lang }) {
       ) : (
         <></>
       )}
+      <div className="w-full h-[200px] mt-5">
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart width={400} height={400}>
+            <Pie
+              dataKey="value"
+              nameKey="name"
+              isAnimationActive={false}
+              data={[
+                {
+                  name: "solved",
+                  value: list.items.filter((item) => item.solvedAt !== null)
+                    .length,
+                  fill: "#00FF00",
+                },
+                {
+                  name: "unsolved",
+                  value: list.items.filter((item) => item.solvedAt === null)
+                    .length,
+                  fill: "#FF0000",
+                },
+              ]}
+              cx="50%"
+              cy="50%"
+            />
+            <Legend />
+            <Tooltip />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
     </main>
   );
 }

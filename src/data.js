@@ -91,7 +91,7 @@ export const listsMock = [
   },
   {
     id: 4,
-    name: "Muj nakupni seznam",
+    name: "seznam 4",
     isArchived: false,
     users: [
       { id: 1, role: "user", username: "otavlna" },
@@ -121,7 +121,7 @@ export const listsMock = [
   },
   {
     id: 5,
-    name: "Muj nakupni seznamasdfasdfasd faskd fhalksdhf lkajsdhflkaj dhlkafjhs ldkasfhldajks",
+    name: "seznam 5",
     isArchived: false,
     users: [
       { id: 1, role: "user", username: "otavlna" },
@@ -146,6 +146,18 @@ export const listsMock = [
         description: "Odstraneny ukol",
         createdAt: new Date(),
         solvedAt: null,
+      },
+      {
+        id: 4,
+        description: "Udelat FE ukol",
+        createdAt: new Date(),
+        solvedAt: new Date(),
+      },
+      {
+        id: 5,
+        description: "Udelat FE ukol",
+        createdAt: new Date(),
+        solvedAt: new Date(),
       },
     ],
   },

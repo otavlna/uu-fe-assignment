@@ -4,6 +4,16 @@ import ListTile from "../components/list-tile";
 import Modal from "../components/modal";
 import { listsMock, meMock } from "../data";
 import { listFactory } from "../utils/listFactory";
+import {
+  Bar,
+  BarChart,
+  Legend,
+  Rectangle,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 export async function loader() {
   const lists = listsMock;
@@ -126,6 +136,33 @@ export default function Root({ lang }) {
           </div>
         </form>
       </Modal>
+      <div className="w-full h-[200px] mt-5">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart
+            width={500}
+            height={300}
+            data={lists.map((list) => ({
+              count: list.items.length,
+              name: list.name,
+            }))}
+            margin={{
+              top: 5,
+              right: 30,
+              left: 20,
+              bottom: 5,
+            }}
+          >
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Legend />
+            <Bar
+              dataKey="count"
+              fill="#8884d8"
+              activeBar={<Rectangle fill="pink" stroke="blue" />}
+            />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
     </main>
   );
 }
