@@ -2,15 +2,13 @@ import { useState } from "react";
 import { useLoaderData, useRevalidator } from "react-router-dom";
 import ListTile from "../components/list-tile";
 import Modal from "../components/modal";
-
-export const API_URL = "http://localhost:3001";
+import { listsMock, meMock } from "../data";
+import { listFactory } from "../utils/listFactory";
 
 export async function loader() {
-  const [lists, me] = await Promise.all([
-    fetch(`${API_URL}/lists`),
-    fetch(`${API_URL}/me`),
-  ]);
-  return { lists: await lists.json(), me: await me.json() };
+  const lists = listsMock;
+  const me = meMock;
+  return { lists, me };
 }
 
 export default function Root() {
@@ -21,8 +19,6 @@ export default function Root() {
 
   const [addShow, setAddShow] = useState(false);
   const [addInput, setAddInput] = useState("");
-  const [addLoading, setAddLoading] = useState(false);
-  const [addError, setAddError] = useState("");
 
   return (
     <main style={{ maxWidth: "1000px", margin: "auto" }}>
@@ -78,26 +74,11 @@ export default function Root() {
       <Modal show={addShow} setShow={setAddShow}>
         <p style={{ fontSize: "20px" }}>Add new list</p>
         <form
-          onSubmit={async (e) => {
+          onSubmit={(e) => {
             e.preventDefault();
-            setAddLoading(true);
-            const res = await fetch(`${API_URL}/lists`, {
-              method: "POST",
-              body: JSON.stringify({ name: addInput }),
-              headers: {
-                "Content-Type": "application/json",
-              },
-            });
-            if (res.status.toString()[0] === "2") {
-              revalidator.revalidate();
-              setAddInput("");
-              setAddShow(false);
-              setAddLoading(false);
-              setAddError("");
-            } else {
-              setAddError("Failed to create new list, please try again");
-              setAddLoading(false);
-            }
+            listsMock.push(listFactory(addInput, me.username, me.id));
+            setAddInput("");
+            setAddShow(false);
           }}
         >
           <input
@@ -106,7 +87,6 @@ export default function Root() {
             placeholder="My new list name"
             style={{ padding: "5px 5px" }}
             onChange={(e) => setAddInput(e.target.value)}
-            disabled={addLoading}
           />
           <div style={{ display: "flex", marginTop: "15px" }}>
             <button
@@ -114,22 +94,15 @@ export default function Root() {
               onClick={() => {
                 setAddShow(false);
                 setAddInput("");
-                setAddError("");
               }}
-              disabled={addLoading}
             >
               Cancel
             </button>
-            <button
-              type="submit"
-              style={{ marginLeft: "5px" }}
-              disabled={addLoading}
-            >
+            <button type="submit" style={{ marginLeft: "5px" }}>
               Add
             </button>
           </div>
         </form>
-        <p>{addError}</p>
       </Modal>
     </main>
   );

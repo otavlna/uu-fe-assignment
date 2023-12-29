@@ -1,4 +1,4 @@
-module.exports.listsMock = [
+export const listsMock = [
   {
     id: 1,
     name: "Muj nakupni seznam",
@@ -151,7 +151,7 @@ module.exports.listsMock = [
   },
 ];
 
-module.exports.meMock = {
+export const meMock = {
   id: 1,
   username: "otavlna",
 };
